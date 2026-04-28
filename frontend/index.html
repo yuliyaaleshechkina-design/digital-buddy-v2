@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифровой Бадди 🤖</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        .role-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .role-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .role-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .role-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .role-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .features {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        .features h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+        }
+        .feature-item .emoji {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .feature-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .feature-item p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .role-selection {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Цифровой Бадди</h1>
+        <p class="subtitle">AI-помощник для адаптации новичков</p>
+        
+        <div class="role-selection">
+            <a href="/newcomer" class="role-card">
+                <div class="icon">👤</div>
+                <h2>Я Новичок</h2>
+                <p>Чат с AI-бадди, задачи, проверка настроения</p>
+            </a>
+            <a href="/hr" class="role-card">
+                <div class="icon">👔</div>
+                <h2>Я HR</h2>
+                <p>Дашборд, управление новичками и задачами</p>
+            </a>
+        </div>
+        
+        <div class="features">
+            <h3>📖 О системе</h3>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="emoji">💬</div>
+                    <h4>Для новичков</h4>
+                    <p>Чат с AI-бадди, ответы на вопросы, поддержка</p>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <h4>Для HR</h4>
+                    <p>Дашборд, отслеживание настроения, алерты</p>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🚀</div>
+                    <h4>Преимущества</h4>
+                    <p>Всегда доступен, дружелюбный тон, конфиденциально</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

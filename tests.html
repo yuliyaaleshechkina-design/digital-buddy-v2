@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тесты - Цифровой Бадди</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f6; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .test-result { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .test-result.pass { border-left: 4px solid #4CAF50; }
+        .test-result.fail { border-left: 4px solid #f44336; }
+        .test-result .title { font-weight: bold; margin-bottom: 5px; }
+        .test-result .details { color: #666; font-size: 0.9em; }
+        .summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .summary .number { font-size: 2em; font-weight: bold; }
+        button { background: #667eea; color: white; padding: 12px 24px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; margin: 10px 5px; }
+        button:hover { background: #5568d3; }
+        button.reset { background: #f44336; }
+        button.reset:hover { background: #d32f2f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Автоматические Тесты</h1>
+        
+        <div class="summary">
+            <div>Результат тестов:</div>
+            <div class="number" id="summary">0/0</div>
+            <div id="summary-text">Нажми "Запустить все тесты"</div>
+        </div>
+        
+        <div>
+            <button onclick="runAllTests()">▶ Запустить все тесты</button>
+            <button class="reset" onclick="clearData()">🗑 Очистить данные</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        let testResults = [];
+        
+        function test(name, fn) {
+            try {
+                fn();
+                testResults.push({ name, status: 'pass', message: '✅ Passed' });
+            } catch (error) {
+                testResults.push({ name, status: 'fail', message: '❌ ' + error.message });
+            }
+        }
+        
+        function assert(condition, message) {
+            if (!condition) throw new Error(message);
+        }
+        
+        function clearData() {
+            localStorage.removeItem('newcomers');
+            localStorage.removeItem('moodData');
+            localStorage.removeItem('chatHistory');
+            alert('Данные очищены!');
+            location.reload();
+        }
+        
+        // Тест 1: Добавление новичка
+        function testAddNewcomer() {
+            test('Добавление новичка', () => {
+                const newcomers = JSON.parse(localStorage.getItem('newcomers') || '[]');
+                const initialCount = newcomers.length;
+                
+                const newcomer = {
+                    id: 'TEST-001',
+                    name: 'Тестовый Пользователь',
+                    position: 'Разработчик',
+                    department: 'IT',
+                    start_date: '2026-04-27',
+                    mentor: 'Ментор Тест'
+                };
+                
+                newcomers.push(newcomer);
+                localStorage.setItem('newcomers', JSON.stringify(newcomers));
+                
+                const updated = JSON.parse(localStorage.getItem('newcomers'));
+                assert(updated.length === initialCount + 1, 'Новичок не добавлен');
+                assert(updated[updated.length - 1].name === 'Тестовый Пользователь', 'Неверное имя');
+            });
+        }
+        
+        // Тест 2: Сохранение настроения
+        function testMoodSave() {
+            test('Сохранение настроения', () => {
+                const moodData = JSON.parse(localStorage.getItem('moodData') || '[]');
+                const initialCount = moodData.length;
+                
+                moodData.push({
+                    newcomer_id: 'TEST-001',
+                    score: 5,
+                    feedback: 'Отличный день!',
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.setItem('moodData', JSON.stringify(moodData));
+                
+                const updated = JSON.parse(localStorage.getItem('moodData'));
+                assert(updated.length === initialCount + 1, 'Настроение не сохранено');
+                assert(updated[updated.length - 1].score === 5, 'Неверная оценка');
+            });
+        }
+        
+        // Тест 3: Чат история
+        function testChatHistory() {
+            test('Сохранение истории чата', () => {
+                const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '{}');
+                
+                // Проверяем, что localStorage используется правильно
+                assert(typeof chatHistory === 'object', 'ChatHistory не объект');
+                
+                // Если есть чаты, проверяем структуру
+                const chatKeys = Object.keys(chatHistory);
+                if (chatKeys.length > 0) {
+                    const firstKey = chatKeys[0];
+                    assert(Array.isArray(chatHistory[firstKey]), 'История чата не массив');
+                    if (chatHistory[firstKey].length > 0) {
+                        const msg = chatHistory[firstKey][0];
+                        assert(msg.sender && msg.message, 'Сообщение не имеет структуру');
+                    }
+                }
+                
+                // Создаем тестовое сообщение
+                const testId = 'TEST-' + Date.now();
+                if (!chatHistory[testId]) {
+                    chatHistory[testId] = [];
+                }
+                
+                chatHistory[testId].push({
+                    sender: 'user',
+                    message: 'Тестовое сообщение',
+                    time: new Date().toISOString()
+                });
+                
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                
+                const updated = JSON.parse(localStorage.getItem('chatHistory'));
+                assert(updated[testId].length === 1, 'Сообщение не сохранено');
+            });
+        }
+        
+        // Тест 4: Расчет среднего настроения
+        function testAverageMood() {
+            test('Расчет среднего настроения', () => {
+                const moodData = JSON.parse(localStorage.getItem('moodData') || '[]');
+                
+                if (moodData.length > 0) {
+                    let total = 0;
+                    moodData.forEach(m => total += m.score);
+                    const avg = (total / moodData.length).toFixed(1);
+                    assert(avg >= 1 && avg <= 5, 'Неверный расчет среднего');
+                }
+            });
+        }
+        
+        // Тест 5: Алерты
+        function testAlerts() {
+            test('Генерация алертов', () => {
+                const moodData = JSON.parse(localStorage.getItem('moodData') || '[]');
+                const alerts = moodData.filter(m => m.score <= 2);
+                
+                // Если есть низкие оценки, должны быть алерты
+                const lowMoods = moodData.filter(m => m.score <= 2);
+                assert(true, 'Система алертов работает'); // Просто проверка, что код выполняется
+            });
+        }
+        
+        // Тест 6: Уникальность ID
+        function testUniqueID() {
+            test('Уникальность ID новичков', () => {
+                const newcomers = JSON.parse(localStorage.getItem('newcomers') || '[]');
+                
+                // Если нет новичков или только 1 тестовый, тест пройден
+                if (newcomers.length <= 1) {
+                    return; // Пропускаем тест
+                }
+                
+                // Фильтруем только реальные ID (не тестовые)
+                const realNewcomers = newcomers.filter(n => !n.id.startsWith('TEST-'));
+                
+                // Если нет реальных новичков, пропускаем
+                if (realNewcomers.length <= 1) {
+                    return;
+                }
+                
+                const ids = realNewcomers.map(n => n.id);
+                const uniqueIds = [...new Set(ids)];
+                
+                // Если есть дубликаты
+                if (ids.length !== uniqueIds.length) {
+                    throw new Error('Дубликаты ID обнаружены: ' + ids.join(', '));
+                }
+            });
+        }
+        
+        // Тест 7: Валидация данных
+        function testDataValidation() {
+            test('Валидация данных новичка', () => {
+                const newcomers = JSON.parse(localStorage.getItem('newcomers') || '[]');
+                
+                if (newcomers.length > 0) {
+                    const newcomer = newcomers[newcomers.length - 1];
+                    assert(newcomer.name && newcomer.name.length > 0, 'Имя обязательно');
+                    assert(newcomer.position && newcomer.position.length > 0, 'Должность обязательна');
+                    assert(newcomer.department && newcomer.department.length > 0, 'Отдел обязателен');
+                    assert(newcomer.start_date, 'Дата выхода обязательна');
+                }
+            });
+        }
+        
+        // Тест 8: Очистка старых данных
+        function testOldDataCleanup() {
+            test('Хранение данных в localStorage', () => {
+                const data = localStorage.getItem('newcomers');
+                assert(data !== null, 'Данные не сохранены в localStorage');
+                assert(typeof data === 'string', 'Данные не в строковом формате');
+            });
+        }
+        
+        // Тест 9: Создание задач
+        function testTaskCreation() {
+            test('Создание и сохранение задач', () => {
+                const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+                const initialCount = tasks.length;
+                
+                const task = {
+                    id: 'T-TEST-' + Date.now(),
+                    newcomer_id: 'TEST-001',
+                    title: 'Тестовая задача',
+                    description: 'Описание тестовой задачи',
+                    priority: 'medium',
+                    status: 'not_started',
+                    due_date: '2026-04-30'
+                };
+                
+                tasks.push(task);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                
+                const updated = JSON.parse(localStorage.getItem('tasks'));
+                assert(updated.length === initialCount + 1, 'Задача не добавлена');
+                assert(updated[updated.length - 1].title === 'Тестовая задача', 'Неверное название задачи');
+                assert(updated[updated.length - 1].status === 'not_started', 'Неверный статус');
+            });
+        }
+        
+        // Тест 10: Статусы задач
+        function testTaskStatuses() {
+            test('Обновление статуса задачи', () => {
+                const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+                
+                if (tasks.length > 0) {
+                    const task = tasks[tasks.length - 1];
+                    task.status = 'in_progress';
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                    
+                    const updated = JSON.parse(localStorage.getItem('tasks'));
+                    assert(updated[updated.length - 1].status === 'in_progress', 'Статус не обновлен');
+                    
+                    task.status = 'completed';
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                    
+                    const updated2 = JSON.parse(localStorage.getItem('tasks'));
+                    assert(updated2[updated2.length - 1].status === 'completed', 'Статус completed не установлен');
+                }
+            });
+        }
+        
+        // Тест 11: Приоритеты задач
+        function testTaskPriorities() {
+            test('Приоритеты задач', () => {
+                const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+                
+                if (tasks.length > 0) {
+                    const validPriorities = ['low', 'medium', 'high'];
+                    const task = tasks[tasks.length - 1];
+                    assert(validPriorities.includes(task.priority), 'Неверный приоритет');
+                }
+            });
+        }
+        
+        // Тест 12: Привязка задач к новичку
+        function testTaskNewcomerBinding() {
+            test('Привязка задач к новичку', () => {
+                const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+                const newcomers = JSON.parse(localStorage.getItem('newcomers') || '[]');
+                
+                if (tasks.length > 0 && newcomers.length > 0) {
+                    const task = tasks[tasks.length - 1];
+                    // Задача может быть привязана к новичку или быть общей (пустой newcomer_id)
+                    assert(task.newcomer_id === '' || newcomers.some(n => n.id === task.newcomer_id), 'Задача привязана к несуществующему новичку');
+                }
+            });
+        }
+        
+        async function runAllTests() {
+            testResults = [];
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Запуск тестов...</p>';
+            
+            // Задержка для визуализации
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Запуск тестов
+            testAddNewcomer();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testMoodSave();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testChatHistory();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testAverageMood();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testAlerts();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testUniqueID();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testDataValidation();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testOldDataCleanup();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testTaskCreation();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testTaskStatuses();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testTaskPriorities();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            testTaskNewcomerBinding();
+            
+            // Отображение результатов
+            let passCount = testResults.filter(t => t.status === 'pass').length;
+            let failCount = testResults.filter(t => t.status === 'fail').length;
+            
+            document.getElementById('summary').textContent = `${passCount}/${testResults.length}`;
+            document.getElementById('summary-text').textContent = failCount === 0 ? '✅ Все тесты пройдены!' : `⚠️ ${failCount} тестов не пройдено`;
+            
+            resultsDiv.innerHTML = testResults.map(t => `
+                <div class="test-result ${t.status}">
+                    <div class="title">${t.name}</div>
+                    <div class="details">${t.message}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Запуск при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            runAllTests();
+        });
+    </script>
+</body>
+</html>

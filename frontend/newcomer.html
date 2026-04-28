@@ -1,0 +1,399 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат с Бадди 💬</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.5em; }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .login-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .login-screen input {
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0;
+        }
+        .login-screen button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .message.user {
+            background: #e3f2fd;
+            margin-left: auto;
+        }
+        .message.buddy {
+            background: #f5f5f5;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+        .chat-input button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .task-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .task-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .status-pending { background: #fff3cd; }
+        .status-in_progress { background: #cce5ff; }
+        .status-done { background: #d4edda; }
+        .comment-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .comment {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .mood-slider {
+            text-align: center;
+            padding: 30px;
+        }
+        .mood-slider input[type="range"] {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0;
+        }
+        .mood-labels {
+            display: flex;
+            justify-content: space-between;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .loading { text-align: center; padding: 20px; color: #666; }
+        .error { color: red; padding: 10px; background: #ffe6e6; border-radius: 5px; margin: 10px 0; }
+        .success { color: green; padding: 10px; background: #e6ffe6; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💬 Чат с Бадди</h1>
+        <a href="/" class="logout-btn">🚪 Выйти</a>
+    </div>
+    
+    <div class="container">
+        <div id="loginScreen" class="login-screen">
+            <h2>👋 Привет!</h2>
+            <p>Введите ваш ID новичка от HR</p>
+            <input type="text" id="newcomerId" placeholder="Например: NB-20260428-1234">
+            <br>
+            <button onclick="login()">Войти</button>
+            <div id="loginError" class="error" style="display:none;"></div>
+        </div>
+        
+        <div id="mainContent" style="display:none;">
+            <h2 id="greeting" style="margin-bottom: 20px;"></h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('chat')">💬 Чат</button>
+                <button class="tab" onclick="showTab('mood')">😊 Настроение</button>
+                <button class="tab" onclick="showTab('tasks')">📋 Задачи</button>
+            </div>
+            
+            <div id="chatTab" class="tab-content active">
+                <div class="chat-container" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button onclick="sendMessage()">Отправить</button>
+                </div>
+            </div>
+            
+            <div id="moodTab" class="tab-content">
+                <div class="mood-slider">
+                    <h3>Как ты себя чувствуешь?</h3>
+                    <input type="range" id="moodRange" min="1" max="5" value="3" oninput="updateMoodLabel()">
+                    <div class="mood-labels">
+                        <span>😞 1</span>
+                        <span>😕 2</span>
+                        <span>😐 3</span>
+                        <span>🙂 4</span>
+                        <span>😀 5</span>
+                    </div>
+                    <p id="moodLabel" style="margin: 20px 0; font-size: 1.2em;">Нормально</p>
+                    <textarea id="moodFeedback" placeholder="Расскажи подробнее (опционально)" style="width:100%; padding:15px; border:2px solid #ddd; border-radius:10px; margin: 20px 0;"></textarea>
+                    <br>
+                    <button onclick="submitMood()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; border-radius: 10px; cursor: pointer;">Отправить</button>
+                    <div id="moodMessage"></div>
+                </div>
+            </div>
+            
+            <div id="tasksTab" class="tab-content">
+                <div id="tasksList"></div>
+                <div id="noTasks" style="text-align: center; padding: 40px; color: #666;">У тебя пока нет задач</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let newcomerId = null;
+        let newcomerName = '';
+        
+        async function login() {
+            const id = document.getElementById('newcomerId').value.trim();
+            if (!id) return;
+            
+            try {
+                const response = await fetch(`/api/get-newcomer/${id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    newcomerId = id;
+                    newcomerName = data.name;
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    document.getElementById('greeting').textContent = `Привет, ${newcomerName}! 👋`;
+                    loadMessages();
+                    loadTasks();
+                } else {
+                    document.getElementById('loginError').textContent = 'Новичок не найден';
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('loginError').textContent = 'Ошибка подключения';
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        async function loadMessages() {
+            const response = await fetch(`/api/get-messages/${newcomerId}`);
+            const messages = await response.json();
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = messages.map(msg => 
+                `<div class="message ${msg.sender}">${msg.message}</div>`
+            ).join('');
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            try {
+                const response = await fetch(`/api/send-message/${newcomerId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    input.value = '';
+                    loadMessages();
+                }
+            } catch (error) {
+                alert('Ошибка отправки');
+            }
+        }
+        
+        async function loadTasks() {
+            const response = await fetch(`/api/get-tasks/${newcomerId}`);
+            const tasks = await response.json();
+            const container = document.getElementById('tasksList');
+            const noTasks = document.getElementById('noTasks');
+            
+            if (tasks.length === 0) {
+                container.style.display = 'none';
+                noTasks.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'block';
+            noTasks.style.display = 'none';
+            
+            container.innerHTML = tasks.map(task => {
+                const statusMap = { 'pending': '⏳', 'in_progress': '🔄', 'done': '✅' };
+                const statusClass = `status-${task.status}`;
+                return `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <h3>${statusMap[task.status]} ${task.title}</h3>
+                            <span class="task-status ${statusClass}">${task.status}</span>
+                        </div>
+                        <p>${task.description || 'Нет описания'}</p>
+                        ${task.deadline ? `<p><small>Срок: ${task.deadline}</small></p>` : ''}
+                        <div class="comment-section">
+                            <h4>Комментарии:</h4>
+                            <div id="comments-${task.id}"></div>
+                            <input type="text" id="comment-${task.id}" placeholder="Добавить комментарий" style="width:70%; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                            <button onclick="addComment(${task.id})" style="padding:10px 15px; border:none; background:#667eea; color:white; border-radius:5px; cursor:pointer;">Отправить</button>
+                        </div>
+                        ${task.status !== 'done' ? `<button onclick="markDone(${task.id})" style="margin-top:10px; padding:10px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">✅ Выполнено</button>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // Load comments
+            for (const task of tasks) {
+                loadComments(task.id);
+            }
+        }
+        
+        async function loadComments(taskId) {
+            const response = await fetch(`/api/get-comments/${taskId}`);
+            const comments = await response.json();
+            const container = document.getElementById(`comments-${taskId}`);
+            container.innerHTML = comments.map(c => 
+                `<div class="comment">${c.comment}</div>`
+            ).join('') || '<small>Нет комментариев</small>';
+        }
+        
+        async function addComment(taskId) {
+            const input = document.getElementById(`comment-${taskId}`);
+            const comment = input.value.trim();
+            if (!comment) return;
+            
+            try {
+                await fetch(`/api/add-comment/${taskId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newcomer_id: newcomerId, comment })
+                });
+                input.value = '';
+                loadComments(taskId);
+                loadTasks();
+            } catch (error) {
+                alert('Ошибка добавления комментария');
+            }
+        }
+        
+        async function markDone(taskId) {
+            try {
+                await fetch(`/api/update-task-status/${taskId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'done' })
+                });
+                loadTasks();
+            } catch (error) {
+                alert('Ошибка обновления статуса');
+            }
+        }
+        
+        function updateMoodLabel() {
+            const mood = document.getElementById('moodRange').value;
+            const labels = { 1: '😞 Очень плохо', 2: '😕 Плохо', 3: '😐 Нормально', 4: '🙂 Хорошо', 5: '😀 Отлично' };
+            document.getElementById('moodLabel').textContent = labels[mood];
+        }
+        
+        async function submitMood() {
+            const mood = document.getElementById('moodRange').value;
+            const feedback = document.getElementById('moodFeedback').value;
+            
+            try {
+                const response = await fetch(`/api/add-mood/${newcomerId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mood_score: parseInt(mood), feedback })
+                });
+                if (response.ok) {
+                    document.getElementById('moodMessage').innerHTML = '<div class="success">Спасибо! Твоё настроение записано!</div>';
+                    setTimeout(() => document.getElementById('moodMessage').innerHTML = '', 3000);
+                }
+            } catch (error) {
+                alert('Ошибка отправки');
+            }
+        }
+    </script>
+</body>
+</html>

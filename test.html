@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифровой Бадди - Прототип</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .role-selector { display: flex; gap: 20px; justify-content: center; margin: 30px 0; }
+        .role-btn { padding: 30px 50px; font-size: 1.3em; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .role-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .role-btn.newcomer { background: #4CAF50; color: white; }
+        .role-btn.hr { background: #2196F3; color: white; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card h2 { color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
+        .submit-btn { background: #667eea; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; }
+        .submit-btn:hover { background: #5568d3; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-card .number { font-size: 2.5em; font-weight: bold; }
+        .stat-card .label { font-size: 1em; opacity: 0.9; }
+        .chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #fafafa; }
+        .message { margin-bottom: 15px; padding: 10px 15px; border-radius: 10px; max-width: 70%; }
+        .message.user { background: #e3f2fd; margin-left: auto; }
+        .message.buddy { background: #f0f0f0; }
+        .chat-input { display: flex; gap: 10px; }
+        .chat-input input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .back-btn { background: #999; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: bold; }
+        .success { background: #4CAF50; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .mood-slider { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+        .mood-option { text-align: center; cursor: pointer; padding: 20px; border: 2px solid #ddd; border-radius: 10px; transition: all 0.2s; }
+        .mood-option:hover, .mood-option.selected { border-color: #667eea; background: #f0f4ff; }
+        .mood-option .emoji { font-size: 2em; display: block; }
+        .mood-option .label { font-size: 0.9em; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Главная страница -->
+        <div id="home-page" class="page active">
+            <div class="header">
+                <h1>🤖 Цифровой Бадди</h1>
+                <p>AI-помощник для адаптации новичков</p>
+            </div>
+            
+            <div class="card" style="text-align: center;">
+                <h2>Выберите вашу роль:</h2>
+                <div class="role-selector">
+                    <button class="role-btn newcomer" onclick="showPage('newcomer-page')">👤 Я Новичок</button>
+                    <button class="role-btn hr" onclick="showPage('hr-page')">👔 Я HR</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📖 О системе</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px;">
+                    <div>
+                        <h3>🎯 Для новичков</h3>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Чат с AI-бадди</li>
+                            <li>Ответы на вопросы</li>
+                            <li>Поддержка и советы</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>📊 Для HR</h3>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Дашборд со статусами</li>
+                            <li>Отслеживание настроения</li>
+                            <li>Ранние алерты</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>🚀 Преимущества</h3>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Всегда доступен</li>
+                            <li>Дружелюбный тон</li>
+                            <li>Конфиденциально</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HR Dashboard -->
+        <div id="hr-page" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <button class="back-btn" onclick="showPage('home-page')">← На главную</button>
+                <div>
+                    <button class="submit-btn" onclick="showPage('add-newcomer-page')" style="background: #4CAF50; margin-right: 10px;">➕ Добавить новичка</button>
+                    <button class="submit-btn" onclick="showPage('hr-tasks-page')" style="background: #FF9800;">📋 Управление задачами</button>
+                </div>
+            </div>
+            <div class="header">
+                <h1>📊 HR Дашборд</h1>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="number" id="total-newcomers">0</div>
+                    <div class="label">Новичков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="active-alerts">0</div>
+                    <div class="label">Активных алертов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="avg-mood">0</div>
+                    <div class="label">Среднее настроение</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Список новичков</h2>
+                <table id="newcomers-table">
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Должность</th>
+                            <th>Отдел</th>
+                            <th>Дата выхода</th>
+                            <th>ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="5" style="text-align: center;">Нет данных. Добавьте новичков через API.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>🚨 Активные алерты</h2>
+                <div id="alerts-list">
+                    <p style="text-align: center; color: #666;">Нет активных алертов</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Добавить новичка -->
+        <div id="add-newcomer-page" class="page">
+            <button class="back-btn" onclick="showPage('hr-page')">← Назад к дашборду</button>
+            <div class="card">
+                <h2>➕ Добавить Новичка</h2>
+                <form id="newcomer-form" onsubmit="addNewcomer(event)">
+                    <div class="form-group">
+                        <label>Имя и фамилия *</label>
+                        <input type="text" id="name" required placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label>Должность *</label>
+                        <input type="text" id="position" required placeholder="Разработчик">
+                    </div>
+                    <div class="form-group">
+                        <label>Отдел *</label>
+                        <input type="text" id="department" required placeholder="IT">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата выхода *</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Имя ментора (опционально)</label>
+                        <input type="text" id="mentor" placeholder="Петр Петров">
+                    </div>
+                    <button type="submit" class="submit-btn">Добавить</button>
+                </form>
+                <div id="add-result"></div>
+            </div>
+        </div>
+        
+        <!-- Чат новичка -->
+        <div id="newcomer-page" class="page">
+            <button class="back-btn" onclick="showPage('home-page')">← На главную</button>
+            <div class="card">
+                <h2>💬 Чат с Бадди</h2>
+                <div id="login-section">
+                    <div class="form-group">
+                        <label>Введите ваш ID новичка:</label>
+                        <input type="text" id="newcomer-id-input" placeholder="NB-20260427-1234">
+                    </div>
+                    <button class="submit-btn" onclick="loginAsNewcomer()">Войти</button>
+                </div>
+                <div id="chat-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <p>Привет, <span id="chat-name"></span>! 👋</p>
+                        <button class="back-btn" onclick="logout()" style="margin: 0;">Выйти</button>
+                    </div>
+                    <div class="chat-box" id="chat-box">
+                        <div class="message buddy">Привет! Я твой AI-бадди. Как твой день проходит?</div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-message" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="submit-btn" onclick="sendMessage()">Отправить</button>
+                </div>
+                <button class="back-btn" style="margin-top: 20px;" onclick="showPage('mood-page')">😊 Проверка настроения</button>
+                <button class="back-btn" style="margin-top: 10px; background: #FF9800;" onclick="showPage('tasks-page')">📋 Мои задания</button>
+            </div>
+            </div>
+        </div>
+        
+        <!-- Проверка настроения -->
+        <div id="mood-page" class="page">
+            <button class="back-btn" onclick="showPage('newcomer-page')">← Назад к чату</button>
+            <div class="card">
+                <h2>😊 Проверка Настроения</h2>
+                <p>Как ты себя чувствуешь сегодня?</p>
+                <div class="mood-slider">
+                    <div class="mood-option" onclick="selectMood(1)">
+                        <span class="emoji">😞</span>
+                        <span class="label">Очень плохо</span>
+                    </div>
+                    <div class="mood-option" onclick="selectMood(2)">
+                        <span class="emoji">😕</span>
+                        <span class="label">Плохо</span>
+                    </div>
+                    <div class="mood-option" onclick="selectMood(3)">
+                        <span class="emoji">😐</span>
+                        <span class="label">Нормально</span>
+                    </div>
+                    <div class="mood-option" onclick="selectMood(4)">
+                        <span class="emoji">🙂</span>
+                        <span class="label">Хорошо</span>
+                    </div>
+                    <div class="mood-option" onclick="selectMood(5)">
+                        <span class="emoji">😀</span>
+                        <span class="label">Отлично</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Если хочешь, расскажи подробнее:</label>
+                    <textarea id="mood-feedback" rows="3" placeholder="Делитесь своими мыслями..."></textarea>
+                </div>
+                <button class="submit-btn" onclick="submitMood()">Отправить</button>
+                <div id="mood-result"></div>
+            </div>
+        </div>
+        
+        <!-- Мои задания -->
+        <div id="tasks-page" class="page">
+            <button class="back-btn" onclick="showPage('newcomer-page')">← Назад к чату</button>
+            <div class="card">
+                <h2>📋 Мои задания на неделю</h2>
+                <div id="tasks-progress" style="margin: 15px 0; padding: 10px; background: #f0f4ff; border-radius: 5px;">
+                    <strong>Прогресс:</strong> <span id="tasks-completed">0</span> из <span id="tasks-total">0</span> выполнено
+                </div>
+                <div id="tasks-list">
+                    <!-- Задания будут здесь -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- HR: Управление заданиями -->
+        <div id="hr-tasks-page" class="page">
+            <button class="back-btn" onclick="showPage('hr-page')">← Назад к дашборду</button>
+            <div class="card">
+                <h2>➕ Добавить задание</h2>
+                <form id="task-form" onsubmit="addTask(event)">
+                    <div class="form-group">
+                        <label>Новичок *</label>
+                        <select id="task-newcomer" required>
+                            <option value="">Выберите новичка</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Название задачи *</label>
+                        <input type="text" id="task-title" required placeholder="Например: Познакомиться с командой">
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea id="task-description" rows="3" placeholder="Подробное описание задачи"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Приоритет</label>
+                        <select id="task-priority">
+                            <option value="low">Низкий</option>
+                            <option value="medium" selected>Средний</option>
+                            <option value="high">Высокий</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Дедлайн</label>
+                        <input type="date" id="task-due-date">
+                    </div>
+                    <button type="submit" class="submit-btn">Добавить задачу</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Все задачи</h2>
+                <div id="hr-tasks-list">
+                    <!-- Задачи HR -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Данные (в реальности - из базы данных)
+        let newcomers = JSON.parse(localStorage.getItem('newcomers')) || [];
+        let moodData = JSON.parse(localStorage.getItem('moodData')) || [];
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || {};
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let currentNewcomer = null;
+        let selectedMood = 0;
+        
+        // Сохранять данные при изменениях
+        function saveData() {
+            localStorage.setItem('newcomers', JSON.stringify(newcomers));
+            localStorage.setItem('moodData', JSON.stringify(moodData));
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Переключение страниц
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        // Добавить новичка
+        function addNewcomer(event) {
+            event.preventDefault();
+            const id = 'NB-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random()*10000);
+            const newcomer = {
+                id: id,
+                name: document.getElementById('name').value,
+                position: document.getElementById('position').value,
+                department: document.getElementById('department').value,
+                start_date: document.getElementById('start-date').value,
+                mentor: document.getElementById('mentor').value
+            };
+            newcomers.push(newcomer);
+            saveData();
+            document.getElementById('add-result').innerHTML = '<div class="success">✅ Новичок добавлен! ID: ' + id + '</div>';
+            updateDashboard();
+            setTimeout(() => {
+                document.getElementById('newcomer-form').reset();
+                document.getElementById('add-result').innerHTML = '';
+                showPage('hr-page');
+            }, 2000);
+        }
+        
+        // Обновить дашборд
+        function updateDashboard() {
+            document.getElementById('total-newcomers').textContent = newcomers.length;
+            
+            // Считаем активные алерты
+            let alertCount = 0;
+            moodData.forEach(m => {
+                if (m.score <= 2) alertCount++;
+            });
+            document.getElementById('active-alerts').textContent = alertCount;
+            
+            // Считаем среднее настроение из реальных данных
+            if (moodData.length > 0) {
+                let totalMood = 0;
+                moodData.forEach(m => totalMood += m.score);
+                const avgMood = (totalMood / moodData.length).toFixed(1);
+                document.getElementById('avg-mood').textContent = avgMood;
+            } else {
+                document.getElementById('avg-mood').textContent = '0';
+            }
+            
+            // Обновляем таблицу новичков
+            const tbody = document.querySelector('#newcomers-table tbody');
+            if (newcomers.length > 0) {
+                tbody.innerHTML = newcomers.map(n => 
+                    '<tr><td>' + n.name + '</td><td>' + n.position + '</td><td>' + n.department + '</td><td>' + n.start_date + '</td><td>' + n.id + '</td></tr>'
+                ).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Нет добавленных новичков. Добавь первого!</td></tr>';
+            }
+            
+            // Обновляем алерты
+            const alertsList = document.getElementById('alerts-list');
+            const lowMoodEntries = moodData.filter(m => m.score <= 2);
+            if (lowMoodEntries.length > 0) {
+                alertsList.innerHTML = lowMoodEntries.map(m => {
+                    const newcomer = newcomers.find(n => n.id === m.newcomer_id);
+                    const name = newcomer ? newcomer.name : 'Неизвестно';
+                    return '<div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0;"><strong>🚨 ' + name + '</strong><br>Настроение: ' + m.score + '/5<br>' + (m.feedback ? '<em>' + m.feedback + '</em>' : '') + '</div>';
+                }).join('');
+            } else {
+                alertsList.innerHTML = '<p style="text-align: center; color: #666;">Нет активных алертов</p>';
+            }
+        }
+        
+        // Войти как новичок
+        function loginAsNewcomer() {
+            const id = document.getElementById('newcomer-id-input').value;
+            const newcomer = newcomers.find(n => n.id === id);
+            if (newcomer) {
+                currentNewcomer = newcomer;
+                document.getElementById('chat-name').textContent = newcomer.name;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                
+                // Загружаем историю чата
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = '';
+                if (chatHistory[newcomer.id] && chatHistory[newcomer.id].length > 0) {
+                    chatHistory[newcomer.id].forEach(msg => {
+                        chatBox.innerHTML += '<div class="message ' + msg.sender + '">' + msg.message + '</div>';
+                    });
+                } else {
+                    chatBox.innerHTML = '<div class="message buddy">Привет, ' + newcomer.name + '! Я твой AI-бадди. Как твой день проходит?</div>';
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                alert('Новичок не найден! Обратитесь к HR.');
+            }
+        }
+        
+        // Выход из аккаунта
+        function logout() {
+            currentNewcomer = null;
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('chat-section').style.display = 'none';
+            document.getElementById('newcomer-id-input').value = '';
+            showPage('home-page');
+        }
+        
+        // Загрузка страницы задач новичка
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            // Если открыли страницу задач - загружаем данные
+            if (pageId === 'tasks-page' && currentNewcomer) {
+                loadNewcomerTasks();
+            }
+            if (pageId === 'hr-tasks-page') {
+                loadHRTasks();
+            }
+        }
+        
+        // Загрузка задач новичка
+        function loadNewcomerTasks() {
+            const newcomerTasks = tasks.filter(t => t.newcomer_id === currentNewcomer.id || t.newcomer_id === '');
+            const completed = newcomerTasks.filter(t => t.status === 'completed').length;
+            
+            document.getElementById('tasks-completed').textContent = completed;
+            document.getElementById('tasks-total').textContent = newcomerTasks.length;
+            
+            const tasksList = document.getElementById('tasks-list');
+            if (newcomerTasks.length === 0) {
+                tasksList.innerHTML = '<p style="text-align: center; color: #666;">Нет задач. Обратитесь к HR.</p>';
+                return;
+            }
+            
+            tasksList.innerHTML = newcomerTasks.map(t => {
+                const statusLabels = {
+                    'not_started': '🔴 Не начато',
+                    'in_progress': '🟡 В работе',
+                    'completed': '🟢 Выполнено',
+                    'has_question': '🔵 Есть вопрос'
+                };
+                const priorityColors = {
+                    'high': '#f44336',
+                    'medium': '#FF9800',
+                    'low': '#4CAF50'
+                };
+                
+                return `
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; background: ${t.status === 'completed' ? '#e8f5e9' : 'white'}">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <strong style="color: ${priorityColors[t.priority]}">●</strong> 
+                                <strong>${t.title}</strong>
+                                ${t.description ? `<p style="margin: 5px 0; color: #666;">${t.description}</p>` : ''}
+                                ${t.due_date ? `<p style="font-size: 0.9em; color: #999;">Дедлайн: ${t.due_date}</p>` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="background: ${t.status === 'completed' ? '#4CAF50' : '#2196F3'}; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em;">${statusLabels[t.status]}</span>
+                            </div>
+                        </div>
+                        ${t.status !== 'completed' ? `
+                            <div style="margin-top: 10px;">
+                                <button onclick="updateTaskStatus('${t.id}', 'in_progress')" style="padding: 5px 10px; margin: 2px; font-size: 0.9em;">Начать</button>
+                                <button onclick="updateTaskStatus('${t.id}', 'completed')" style="padding: 5px 10px; margin: 2px; font-size: 0.9em; background: #4CAF50; color: white;">Выполнено</button>
+                                <button onclick="updateTaskStatus('${t.id}', 'has_question')" style="padding: 5px 10px; margin: 2px; font-size: 0.9em; background: #FF9800;">Вопрос</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Обновление статуса задачи
+        function updateTaskStatus(taskId, status) {
+            const task = tasks.find(t => t.id === taskId && (t.newcomer_id === currentNewcomer.id || t.newcomer_id === ''));
+            if (task) {
+                // Если общая задача, создаем копию для новичка
+                if (task.newcomer_id === '') {
+                    const newTask = {
+                        ...task,
+                        id: task.id + '-' + currentNewcomer.id,
+                        newcomer_id: currentNewcomer.id,
+                        original_id: task.id
+                    };
+                    tasks.push(newTask);
+                    taskToModify = newTask;
+                } else {
+                    taskToModify = task;
+                }
+                
+                taskToModify.status = status;
+                
+                // Если есть вопрос, добавить комментарий
+                if (status === 'has_question') {
+                    const comment = prompt('Опишите ваш вопрос:');
+                    if (comment) {
+                        taskToModify.question = comment;
+                        taskToModify.question_timestamp = new Date().toISOString();
+                    } else {
+                        taskToModify.status = 'in_progress';
+                    }
+                }
+                
+                saveData();
+                loadNewcomerTasks();
+            }
+        }
+        
+        // Загрузка задач для HR
+        function loadHRTasks() {
+            // Заполнить выпадающий список новичков
+            const select = document.getElementById('task-newcomer');
+            if (select.options.length === 1) {
+                newcomers.forEach(n => {
+                    const option = document.createElement('option');
+                    option.value = n.id;
+                    option.textContent = n.name;
+                    select.appendChild(option);
+                });
+            }
+            
+            // Показать все задачи с детализацией по новичкам
+            const hrTasksList = document.getElementById('hr-tasks-list');
+            if (tasks.length === 0) {
+                hrTasksList.innerHTML = '<p style="text-align: center; color: #666;">Нет задач. Добавьте первую!</p>';
+                return;
+            }
+            
+            hrTasksList.innerHTML = tasks.filter(t => !t.original_id).map(t => {
+                // Найти всех новичков, у которых есть эта задача
+                const assignedNewcomers = newcomers.filter(n => t.newcomer_id === '' || t.newcomer_id === n.id);
+                
+                // Статусы по каждому новичку
+                const statuses = {
+                    not_started: [],
+                    in_progress: [],
+                    completed: [],
+                    has_question: []
+                };
+                
+                // Ищем задачи для каждого новичка (включая копии общих задач)
+                assignedNewcomers.forEach(n => {
+                    const newcomerTask = tasks.find(t2 => (t2.id === t.id || t2.original_id === t.id) && t2.newcomer_id === n.id);
+                    const status = newcomerTask ? newcomerTask.status : 'not_started';
+                    statuses[status].push({
+                        name: n.name,
+                        task: newcomerTask
+                    });
+                });
+                
+                const statusLabels = {
+                    'not_started': '🔴 Не начато',
+                    'in_progress': '🟡 В работе',
+                    'completed': '🟢 Выполнено',
+                    'has_question': '🔵 Есть вопрос'
+                };
+                
+                const priorityColors = {
+                    'high': '#f44336',
+                    'medium': '#FF9800',
+                    'low': '#4CAF50'
+                };
+                
+                // Собрать вопросы
+                const questions = statuses.has_question.filter(s => s.task && s.task.question);
+                
+                return `
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; background: white;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                    <strong style="color: ${priorityColors[t.priority]}">●</strong>
+                                    <strong style="font-size: 1.1em;">${t.title}</strong>
+                                    <span style="background: #2196F3; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em;">Общая задача</span>
+                                </div>
+                                ${t.description ? `<p style="color: #666; margin: 5px 0; font-size: 0.9em;">${t.description}</p>` : ''}
+                                ${t.due_date ? `<p style="font-size: 0.85em; color: #999;">📅 Дедлайн: ${t.due_date}</p>` : ''}
+                            </div>
+                            <div style="text-align: right; margin-left: 15px;">
+                                <button onclick="deleteTask('${t.id}')" style="padding: 5px 10px; font-size: 0.85em; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">🗑 Удалить</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Детализация по новичкам -->
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                <div style="background: #ffebee; padding: 10px; border-radius: 5px;">
+                                    <div style="font-size: 0.8em; color: #f44336; margin-bottom: 5px;">🔴 Не начато</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #f44336;">${statuses.not_started.length}</div>
+                                    ${statuses.not_started.length > 0 ? `<div style="font-size: 0.75em; color: #666; margin-top: 3px;">${statuses.not_started.map(s => s.name.split(' ')[0]).join(', ')}</div>` : ''}
+                                </div>
+                                <div style="background: #fff3e0; padding: 10px; border-radius: 5px;">
+                                    <div style="font-size: 0.8em; color: #FF9800; margin-bottom: 5px;">🟡 В работе</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #FF9800;">${statuses.in_progress.length}</div>
+                                    ${statuses.in_progress.length > 0 ? `<div style="font-size: 0.75em; color: #666; margin-top: 3px;">${statuses.in_progress.map(s => s.name.split(' ')[0]).join(', ')}</div>` : ''}
+                                </div>
+                                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                                    <div style="font-size: 0.8em; color: #4CAF50; margin-bottom: 5px;">🟢 Выполнено</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #4CAF50;">${statuses.completed.length}</div>
+                                    ${statuses.completed.length > 0 ? `<div style="font-size: 0.75em; color: #666; margin-top: 3px;">${statuses.completed.map(s => s.name.split(' ')[0]).join(', ')}</div>` : ''}
+                                </div>
+                                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                                    <div style="font-size: 0.8em; color: #2196F3; margin-bottom: 5px;">🔵 Вопросы</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #2196F3;">${statuses.has_question.length}</div>
+                                    ${statuses.has_question.length > 0 ? `<div style="font-size: 0.75em; color: #666; margin-top: 3px;">${statuses.has_question.map(s => s.name.split(' ')[0]).join(', ')}</div>` : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- Вопросы от новичков -->
+                            ${questions.length > 0 ? `
+                                <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 5px;">
+                                    <div style="font-weight: bold; color: #FF9800; margin-bottom: 10px;">🔵 Вопросы от новичков:</div>
+                                    ${questions.map(q => `
+                                        <div style="background: white; padding: 10px; border-radius: 5px; margin: 5px 0; border-left: 3px solid #FF9800;">
+                                            <strong>${q.name}:</strong> ${q.task.question}
+                                            <div style="font-size: 0.75em; color: #999; margin-top: 5px;">${new Date(q.task.question_timestamp).toLocaleString()}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Прогресс бар -->
+                        <div style="margin-top: 10px;">
+                            <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #f0f0f0;">
+                                <div style="background: #f44336; width: ${(statuses.not_started.length / assignedNewcomers.length) * 100}%;"></div>
+                                <div style="background: #FF9800; width: ${(statuses.in_progress.length / assignedNewcomers.length) * 100}%;"></div>
+                                <div style="background: #4CAF50; width: ${(statuses.completed.length / assignedNewcomers.length) * 100}%;"></div>
+                                <div style="background: #2196F3; width: ${(statuses.has_question.length / assignedNewcomers.length) * 100}%;"></div>
+                            </div>
+                            <div style="font-size: 0.75em; color: #999; margin-top: 3px;">
+                                Всего: ${assignedNewcomers.length} | Выполнено: ${statuses.completed.length}/${assignedNewcomers.length} (${assignedNewcomers.length > 0 ? Math.round((statuses.completed.length / assignedNewcomers.length) * 100) : 0}%)
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (hrTasksList.innerHTML === '') {
+                hrTasksList.innerHTML = '<p style="text-align: center; color: #666;">Нет задач.</p>';
+            }
+        }
+        
+        // Добавление задачи
+        function addTask(event) {
+            event.preventDefault();
+            
+            const task = {
+                id: 'T' + Date.now(),
+                newcomer_id: document.getElementById('task-newcomer').value,
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                priority: document.getElementById('task-priority').value,
+                status: 'not_started',
+                due_date: document.getElementById('task-due-date').value
+            };
+            
+            tasks.push(task);
+            saveData();
+            
+            alert('✅ Задача добавлена!');
+            document.getElementById('task-form').reset();
+            loadHRTasks();
+        }
+        
+        // Удаление задачи
+        function deleteTask(taskId) {
+            if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveData();
+                loadHRTasks();
+            }
+        }
+        
+        // Отправить сообщение
+        function sendMessage() {
+            const input = document.getElementById('chat-message');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += '<div class="message user">' + message + '</div>';
+            input.value = '';
+            
+            // Сохраняем историю чата
+            if (!chatHistory[currentNewcomer.id]) {
+                chatHistory[currentNewcomer.id] = [];
+            }
+            chatHistory[currentNewcomer.id].push({sender: 'user', message: message, time: new Date().toISOString()});
+            saveData();
+            
+            // Добавляем сообщение в AI историю
+            aiBuddy.addMessage(currentNewcomer.id, 'user', message);
+            
+            // Генерируем ответ через AI
+            aiBuddy.generateResponse(message, currentNewcomer.id).then(response => {
+                chatBox.innerHTML += '<div class="message buddy">' + response + '</div>';
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                // Сохраняем ответ
+                chatHistory[currentNewcomer.id].push({sender: 'buddy', message: response, time: new Date().toISOString()});
+                saveData();
+            });
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        // Получение ответа (fallback)
+        function getRandomResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            // Категории ответов
+            const responses = {
+                greeting: [
+                    "Привет! Как твой день проходит?",
+                    "Здравствуй! Чем могу помочь сегодня?",
+                    "Привет! Как настроение?",
+                    "Добро пожаловать! Есть какие-то вопросы?"
+                ],
+                difficulty: [
+                    "Понимаю! Адаптация может быть сложной. Давай разберём, что именно вызывает трудности?",
+                    "Не переживай, первые дни всегда сложные! Что конкретно тебя беспокоит?",
+                    "Я с тобой! Рассказывай, в чём проблема — вместе разберёмся!",
+                    "Понимаю твои чувства! Давай по шагам решим эту задачу."
+                ],
+                thanks: [
+                    "Всегда рад помочь! 😊",
+                    "Не за что! Если ещё что-то нужно — обращайся!",
+                    "Пожалуйста! Я здесь, чтобы поддержать тебя!",
+                    "Рад, что смог помочь! Заходи ещё!"
+                ],
+                tired: [
+                    "Понимаю, первые дни могут быть утомительными! Не забывай делать перерывы. Всё получится! 💪",
+                    "Отдохни немного, это нормально! Завтра будет легче.",
+                    "Не переусердствуй! Важно также отдыхать. Как ты себя чувствуешь?",
+                    "Понимаю! Может, стоит сделать паузу и выпить кофе?"
+                ],
+                lonely: [
+                    "Понимаю твои чувства 😊 Попробуй познакомиться с коллегами, пригласить на кофе! Команда всегда готова помочь!",
+                    "Не переживай, это пройдёт! Попробуй подойти к кому-нибудь из команды и просто пообщаться.",
+                    "Я с тобой! А ещё можешь написать ментору — он обязательно поможет тебе融入ться в команду.",
+                    "Понимаю! Может, стоит записаться на корпоративное мероприятие? Там можно познакомиться с людьми."
+                ],
+                question: [
+                    "Отличный вопрос! Давай обсудим это подробнее 🤗",
+                    "Интересно! Расскажи, что именно тебя интересует?",
+                    "Спасибо, что спросил! Я постараюсь помочь.",
+                    "Понял твой вопрос! Давай разберёмся вместе."
+                ],
+                default: [
+                    "Понимаю! Расскажи подробнее, что тебя беспокоит? 😊",
+                    "Спасибо, что поделился! Я здесь, чтобы поддержать тебя! 💪",
+                    "Интересно! Что ещё тебя волнует?",
+                    "Понял! Если есть вопросы - спрашивай, помогу чем могу! 😊",
+                    "Рад, что ты пишешь! Как ещё могу помочь?",
+                    "Всегда на связи! Что ещё тебя интересует?"
+                ]
+            };
+            
+            // Определение категории
+            let category = 'default';
+            if (lowerMsg.includes('привет') || lowerMsg.includes('здравствуй') || lowerMsg.includes('доброго')) {
+                category = 'greeting';
+            } else if (lowerMsg.includes('трудно') || lowerMsg.includes('сложно') || lowerMsg.includes('проблема') || lowerMsg.includes('не понимаю')) {
+                category = 'difficulty';
+            } else if (lowerMsg.includes('спасибо') || lowerMsg.includes('благодарю')) {
+                category = 'thanks';
+            } else if (lowerMsg.includes('устал') || lowerMsg.includes('устала') || lowerMsg.includes('устом')) {
+                category = 'tired';
+            } else if (lowerMsg.includes('одиноко') || lowerMsg.includes('одинок') || lowerMsg.includes('одинока')) {
+                category = 'lonely';
+            } else if (lowerMsg.includes('вопрос') || lowerMsg.includes('как') || lowerMsg.includes('что') || lowerMsg.includes('где')) {
+                category = 'question';
+            }
+            
+            // Выбор случайного ответа из категории
+            const categoryResponses = responses[category];
+            return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+        }
+        
+        // AI Ассистент (HuggingFace Inference API)
+        class AIBuddy {
+            constructor() {
+                this.api_url = "https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct";
+                this.history = {};
+            }
+            
+            async generateResponse(message, newcomerId = 'default') {
+                // Сначала пробуем с AI API
+                const history = this.history[newcomerId] || [];
+                const context = history.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n');
+                
+                const prompt = `Ты - дружелюбный AI-бадди по имени Бадди, который помогает новичкам адаптироваться в компании.
+Твой стиль общения: теплый, поддерживающий, неформальный.
+
+История разговора:
+${context}
+
+Сообщение новичка: ${message}
+
+Твой ответ (на русском языке, кратко, 2-3 предложения):`;
+                
+                try {
+                    const response = await fetch(this.api_url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            inputs: prompt,
+                            parameters: {
+                                max_new_tokens: 150,
+                                temperature: 0.7,
+                                return_full_text: false
+                            }
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (Array.isArray(result) && result.length > 0) {
+                            const generated = result[0].generated_text?.trim();
+                            if (generated) {
+                                this.addMessage(newcomerId, 'assistant', generated);
+                                return generated;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('AI API error, using fallback:', error);
+                }
+                
+                // Если API не работает, используем fallback
+                return this.getFallbackResponse(message);
+            }
+            
+            addMessage(newcomerId, role, content) {
+                if (!this.history[newcomerId]) {
+                    this.history[newcomerId] = [];
+                }
+                this.history[newcomerId].push({ role, content });
+                
+                // Ограничиваем историю
+                if (this.history[newcomerId].length > 10) {
+                    this.history[newcomerId] = this.history[newcomerId].slice(-10);
+                }
+            }
+            
+            getFallbackResponse(message) {
+                return getRandomResponse(message);
+            }
+        }
+        
+        // Глобальный экземпляр AI
+        const aiBuddy = new AIBuddy();
+        
+        // Выбрать настроение
+        function selectMood(mood) {
+            selectedMood = mood;
+            document.querySelectorAll('.mood-option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i + 1 === mood);
+            });
+        }
+        
+        // Отправить настроение
+        function submitMood() {
+            if (!selectedMood) {
+                alert('Пожалуйста, оцените своё настроение!');
+                return;
+            }
+            
+            // Сохраняем данные о настроении
+            moodData.push({
+                newcomer_id: currentNewcomer.id,
+                score: selectedMood,
+                feedback: document.getElementById('mood-feedback').value,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Сохраняем в localStorage
+            saveData();
+            
+            document.getElementById('mood-result').innerHTML = '<div class="success">✅ Спасибо! Твоё настроение записано!</div>';
+            setTimeout(() => {
+                document.getElementById('mood-feedback').value = '';
+                document.getElementById('mood-result').innerHTML = '';
+                selectedMood = 0;
+                document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+                showPage('newcomer-page');
+            }, 2000);
+        }
+        
+        // Инициализация при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDashboard();
+            loadDefaultTasks();
+        });
+        
+        // Также вызываем сразу
+        updateDashboard();
+        
+        // Загрузить стандартные задачи если нет
+        function loadDefaultTasks() {
+            if (tasks.length === 0) {
+                const defaultTasks = [
+                    { id: 'T1', title: 'Познакомиться с командой', description: 'Приветствую всех коллег в отделе', newcomer_id: '', priority: 'high', status: 'not_started', due_date: '' },
+                    { id: 'T2', title: 'Настроить рабочее место', description: 'Установить необходимое ПО', newcomer_id: '', priority: 'high', status: 'not_started', due_date: '' },
+                    { id: 'T3', title: 'Прочитать документы компании', description: 'Ознакомиться с регламентами', newcomer_id: '', priority: 'medium', status: 'not_started', due_date: '' },
+                    { id: 'T4', title: 'Назначить встречу с ментором', description: 'Обсудить план адаптации', newcomer_id: '', priority: 'high', status: 'not_started', due_date: '' },
+                    { id: 'T5', title: 'Зарегистрироваться в системах', description: 'Получить доступы к инструментам', newcomer_id: '', priority: 'medium', status: 'not_started', due_date: '' }
+                ];
+                tasks = defaultTasks;
+                saveData();
+            }
+        }
+    </script>
+</body>
+</html>
