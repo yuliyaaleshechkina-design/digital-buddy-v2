@@ -39,7 +39,7 @@ git push -u origin main
 https://digital-buddy.vercel.app
 ```
 
-### 🧪 Запуск тестов
+### 🌱 Демо-данные`n```bash`n# Загрузить демо-данные вручную`npython seed.py`n`n# Или запустить в демо-режиме`n$env:DEMO_MODE="true"`npython api/main.py`n```
 ```bash
 python test_full.py      # Все тесты (33 теста)
 python test_tasks.py     # Тесты для задач (6 тестов)
@@ -123,3 +123,4 @@ python api/main.py
 
 ## 📝 Лицензия
 Internal use only
+

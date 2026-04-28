@@ -9,6 +9,18 @@ CORS(app)
 # Инициализация БД при старте
 init_db()
 
+# Автоматическая загрузка демо-данных если DEMO_MODE=true
+if os.environ.get('DEMO_MODE', 'false').lower() == 'true':
+    print("🌱 DEMO_MODE включен - загружаю демо-данные...")
+    try:
+        from seed import seed_demo_data, check_seed_needed
+        if check_seed_needed():
+            seed_demo_data()
+        else:
+            print("ℹ️ Демо-данные уже существуют")
+    except Exception as e:
+        print(f"⚠️ Ошибка загрузки демо-данных: {e}")
+
 @app.route('/')
 def index():
     return send_from_directory('frontend', 'index.html')
